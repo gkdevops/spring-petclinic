@@ -62,6 +62,15 @@ pipeline {
                 sh "mvn package -DskipTests -Dcheckstyle.skip"
             }
         }
+        stage('Docker Build & Scan') {
+            steps {
+                sh '''
+                IMAGE_TAG=`git log -1 --format=%h`
+                docker image build -t petclinic:$IMAGE_TAG
+                trivy image petclinic:$IMAGE_TAG
+                '''
+            }
+        }
     }
     
     post {
