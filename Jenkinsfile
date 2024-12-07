@@ -67,7 +67,7 @@ pipeline {
                 sh '''
                 IMAGE_TAG=`git log -1 --format=%h`
                 docker image build -t ec2-54-161-2-66.compute-1.amazonaws.com:9000/petclinic:$IMAGE_TAG .
-                docker image push 
+                docker image push ec2-54-161-2-66.compute-1.amazonaws.com:9000/petclinic:$IMAGE_TAG
                 '''
             }
         }
