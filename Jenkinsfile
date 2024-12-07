@@ -84,7 +84,7 @@ pipeline {
                 withCredentials([file(credentialsId: 'dev-kubeconfig', variable: 'kubeconfig')]) {
                     sh '''
                     IMAGE_TAG=`git log -1 --format=%h`
-                    cd helm
+                    cd helm/petclinic
                     helm upgrade --install petclinic . --set tag="$IMAGE_TAG" --kubeconfig=$kubeconfig -n petclinic
                     '''
                 }
