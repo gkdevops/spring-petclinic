@@ -66,7 +66,7 @@ pipeline {
             steps {
                 sh '''
                 IMAGE_TAG=`git log -1 --format=%h`
-                docker image build -t petclinic:$IMAGE_TAG
+                docker image build -t petclinic:$IMAGE_TAG .
                 trivy image petclinic:$IMAGE_TAG
                 '''
             }
