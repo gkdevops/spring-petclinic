@@ -62,12 +62,20 @@ pipeline {
                 sh "mvn package -DskipTests -Dcheckstyle.skip"
             }
         }
-        stage('Docker Build & Scan') {
+        stage('Docker Build & Push') {
             steps {
                 sh '''
                 IMAGE_TAG=`git log -1 --format=%h`
-                docker image build -t petclinic:$IMAGE_TAG .
-                trivy image petclinic:$IMAGE_TAG
+                docker image build -t ec2-54-161-2-66.compute-1.amazonaws.com:9000/petclinic:$IMAGE_TAG .
+                docker image push 
+                '''
+            }
+        }
+        stage('Docker Image Scan') {
+            steps {
+                sh '''
+                IMAGE_TAG=`git log -1 --format=%h`
+                trivy image ec2-54-161-2-66.compute-1.amazonaws.com:9000/petclinic:$IMAGE_TAG
                 '''
             }
         }
