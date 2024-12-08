@@ -79,12 +79,39 @@ pipeline {
                 '''
             }
         }
-        stage('Helm Deploy') {
+        stage('Deploy to Dev') {
+            when {
+                branch 'develop'
+            }
             steps {
                 withCredentials([file(credentialsId: 'dev-kubeconfig', variable: 'kubeconfig')]) {
                     sh '''
                     IMAGE_TAG=`git log -1 --format=%h`
-                    echo "message"
+                    echo "Deployed to Dev"
+                    '''
+                }
+            }
+        stage('Deploy to UAT') {
+            when {
+                branch 'release'
+            }
+            steps {
+                withCredentials([file(credentialsId: 'dev-kubeconfig', variable: 'kubeconfig')]) {
+                    sh '''
+                    IMAGE_TAG=`git log -1 --format=%h`
+                    echo "Deployed to UAT"
+                    '''
+                }
+            }
+        stage('Deploy to PROD') {
+            when {
+                branch 'main'
+            }
+            steps {
+                withCredentials([file(credentialsId: 'dev-kubeconfig', variable: 'kubeconfig')]) {
+                    sh '''
+                    IMAGE_TAG=`git log -1 --format=%h`
+                    echo "Deployed to PROD"
                     '''
                 }
             }
