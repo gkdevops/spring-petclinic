@@ -26,14 +26,14 @@ pipeline {
     }
 
     stages {
-
+        /*
         stage ('Code Checkout'){
             steps {
                 deleteDir()
                 git branch: 'main', url: 'https://github.com/gkdevops/spring-petclinic.git'
             }
         }
-        
+        */
         stage ('SCA Analysis') {
             steps {
                 sh '''
@@ -91,6 +91,7 @@ pipeline {
                     '''
                 }
             }
+        }
         stage('Deploy to UAT') {
             when {
                 branch 'release'
@@ -103,6 +104,7 @@ pipeline {
                     '''
                 }
             }
+        }
         stage('Deploy to PROD') {
             when {
                 branch 'main'
