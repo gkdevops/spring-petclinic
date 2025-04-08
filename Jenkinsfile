@@ -1,133 +1,37 @@
 pipeline {
-    
+
     agent {
         label 'jenkins-agent'
     }
-
-    environment {
-        myname = "PREPZEE"
-        SCANNER_HOME = tool 'sonarqube-scanner'
-    }
-
-    triggers {
-      cron '0 * * * *'
-    }
-    
-    tools {
-      maven 'maven3'
-      jdk 'java17'
-    }
-
+ 
     options {
-      buildDiscarder logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '', numToKeepStr: '20')
+      buildDiscarder logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '', numToKeepStr: '5')
+      timeout(5)
       disableConcurrentBuilds()
-      timeout(30)
       timestamps()
     }
 
-    stages {
-        /*
-        stage ('Code Checkout'){
-            steps {
-                deleteDir()
-                git branch: 'main', url: 'https://github.com/gkdevops/spring-petclinic.git'
-            }
-        }
-        */
-        stage ('SCA Analysis') {
-            steps {
-                sh '''
-                    trivy fs --format cyclonedx --output result.json .
-                    trivy sbom result.json --severity CRITICAL --exit-code 1
-                    rm result.json
-                '''
-            }
-        }
-        stage('Compile Code') {
-            steps {
-                sh "mvn test-compile"
-            }
-        }
-      /*
-        stage('SAST Analysis') {
-            steps {
-                withSonarQubeEnv(installationName: 'sonarqube') {
-                    sh "$SCANNER_HOME/bin/sonar-scanner -Dsonar.java.binaries=. -Dsonar.projectName=PetClinic -Dsonar.projectKey=PetClinic"
-                }
-            }
-        }
-        */
-        stage('Package Code') {
-            steps {
-                sh "mvn package -DskipTests -Dcheckstyle.skip"
-            }
-        }
-        stage('Docker Build & Push') {
-            steps {
-                sh '''
-                IMAGE_TAG=`git log -1 --format=%h`
-                docker image build -t petclinic:$IMAGE_TAG .
-                '''
-            }
-        }
-        stage('Docker Image Scan') {
-            steps {
-                sh '''
-                IMAGE_TAG=`git log -1 --format=%h`
-                trivy image petclinic:$IMAGE_TAG
-                '''
-            }
-        }
-        stage('Deploy to Dev') {
-            when {
-                branch 'develop'
-            }
-            steps {
-                withCredentials([file(credentialsId: 'dev-kubeconfig', variable: 'kubeconfig')]) {
-                    sh '''
-                    IMAGE_TAG=`git log -1 --format=%h`
-                    echo "Deployed to Dev"
-                    '''
-                }
-            }
-        }
-        stage('Deploy to UAT') {
-            when {
-                branch 'release'
-            }
-            steps {
-                withCredentials([file(credentialsId: 'dev-kubeconfig', variable: 'kubeconfig')]) {
-                    sh '''
-                    IMAGE_TAG=`git log -1 --format=%h`
-                    echo "Deployed to UAT"
-                    '''
-                }
-            }
-        }
-        stage('Deploy to PROD') {
-            when {
-                branch 'main'
-            }
-            steps {
-                withCredentials([file(credentialsId: 'dev-kubeconfig', variable: 'kubeconfig')]) {
-                    sh '''
-                    IMAGE_TAG=`git log -1 --format=%h`
-                    echo "Deployed to PROD"
-                    '''
-                }
-            }
-        }
+    parameters {
+      string defaultValue: 'develop', description: 'The Branch from which code is checked out', name: 'branch_name', trim: true
+      choice choices: ['dev', 'sit', 'uat'], description: 'Select the environment to deploy the code', name: 'environment'
     }
-    
-    post {
-        always {
-            echo "This will always run"
+
+    triggers {
+      cron '30 5 * * *'
+    }
+
+    stages {
+      stage('code checkout') {
+        steps {
+            git branch: '$branch_name', url: 'https://github.com/gkdevops/spring-petclinic.git'
         }
-        failure {
-            echo "This will be printed if only pipeline fails"
+      }
+
+      stage('compile code') {
+        steps {
+            echo "stage 2"
+            sleep 10
         }
-        success {
-            echo "This will be printed only when pipeline succeeds"
-        }
+      }
     }
 }
