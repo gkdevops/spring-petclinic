@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17.0.13_11-jre-alpine
+FROM eclipse-temurin:17.0.17_10-jre-alpine-3.23
 
 LABEL application-name="PetClinic"
 LABEL dev-team="dev-team@gmail.com"
