@@ -1,9 +1,9 @@
 replicaCount: 2
 
 image:
-  repository: 339712947205.dkr.ecr.us-east-1.amazonaws.com/petclinic
+  repository: nginx
   pullPolicy: IfNotPresent
-  tag: "1.0.0"
+  tag: "latest"
 
 nameOverride: ""
 fullnameOverride: ""
